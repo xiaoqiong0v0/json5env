@@ -1,18 +1,3 @@
-function loadString(str: string) {
-    // 只替换一次
-    let retStr = str
-    if ((retStr.startsWith("'") && retStr.endsWith("'")) || (retStr.startsWith('"') && retStr.endsWith('"'))) {
-        retStr = retStr.substring(1, retStr.length - 1)
-    }
-    const regex = /\\+(['"])([^'"]+)\\+(['"])/
-    let math = regex.exec(retStr)
-    while (math) {
-        retStr = retStr.replace(math[0], math[1] + math[2] + math[3])
-        math = regex.exec(retStr)
-    }
-    return retStr
-}
-
 function toString(data: any) {
     switch (typeof data) {
         case "object":
@@ -22,8 +7,8 @@ function toString(data: any) {
     }
 }
 
-function toDefValue(type: string, value: string, defaultValue: any) {
-    const realValue = value ? loadString(value) : toString(defaultValue)
+function toDefValue(type: string, value: any, defaultValue: any) {
+    const realValue = toString(value !== undefined ? value : defaultValue)
     let regex;
     let math;
     switch (type) {
