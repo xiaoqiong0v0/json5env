@@ -43,7 +43,7 @@ function typeDefault(value: any): string {
     }
 }
 
-function buildDefLoader(map: { [key: string]: any }, defFileName: string = 'def.d.ts', defValName: string = 'DEF') {
+function buildDefConst(map: { [key: string]: any }, defFileName: string = 'def.d.ts', defValName: string = 'DEF') {
     const file = absoluteFilePath(defFileName)
     const lines: string[] = ["// 该文件仅用于声明"]
     const isDeclare = defFileName.endsWith('.d.ts') || defFileName.endsWith('.ts')
@@ -57,7 +57,7 @@ function buildDefLoader(map: { [key: string]: any }, defFileName: string = 'def.
         lines.push(`    ${key}: ${typeDefault(map[key])}${suffix}`)
     })
     lines.push('};')
-    if (isDeclare) {
+    if (!isDeclare) {
         lines.push(`module.exports = ${defValName}`)
     }
     fs.writeFileSync(file, lines.join('\n'))
@@ -113,7 +113,7 @@ export default function autoDef(
                 map[key] = null
             }
         })
-        buildDefLoader(map, defFileName, defValName)
+        buildDefConst(map, defFileName, defValName)
     }
 
     let time: NodeJS.Timeout | undefined = undefined
