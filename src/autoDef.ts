@@ -58,7 +58,7 @@ function buildDefConst(map: { [key: string]: any }, defFileName: string = 'def.d
     })
     lines.push('};')
     if (!isDeclare) {
-        lines.push(`module.exports = ${defValName}`)
+        lines.push(`module.exports = {${defValName}}`)
     }
     fs.writeFileSync(file, lines.join('\n'))
 }
