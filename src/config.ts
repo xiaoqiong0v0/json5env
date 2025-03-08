@@ -1,8 +1,8 @@
 export class JsonEnvConfig {
     /**
-     * 环境变量设置到 process.env 的该键下 可以空的话直接设置到 process.env
+     * 环境变量设置到 EnvConst 的该键下 空的话直接设置到 EnvConst
      */
-    public envKey: string = 'JSON_ENV';
+    public envKey: string | undefined = undefined;
     /**
      * 文件格式(后缀) 加载文件是文件名称合成时添加到后缀
      */

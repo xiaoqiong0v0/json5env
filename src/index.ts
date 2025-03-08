@@ -1,6 +1,5 @@
 import fs from 'node:fs'
 import JSON from 'json5'
-import {env} from "node:process";
 import './util'
 import {StringEmptyOrBlank} from "./util";
 import {JsonEnvConfig, DEFAULT} from "./config";
@@ -8,6 +7,7 @@ import buildDefLoader from "./buildDefLoader"
 import buildDefPlugin from "./buildDefPlugin";
 import autoDef from "./autoDef";
 import envFiles from "./envFiles";
+import EnvConst from "./envConst";
 
 function fromJson(file: string, target: { [key: string]: any }) {
     const content = fs.readFileSync(file, 'utf-8')
@@ -27,12 +27,12 @@ function fromJson(file: string, target: { [key: string]: any }) {
 
 function load(option: JsonEnvConfig) {
     // 获取项目根目录
-    let target: { [key: string]: any } = env
+    let target: { [key: string]: any } = EnvConst
     if (!StringEmptyOrBlank(option.envKey)) {
-        let current: { [key: string]: any } | undefined = target[option.envKey]
+        let current: { [key: string]: any } | undefined = target[option.envKey!]
         if (!current) {
             current = {}
-            target[option.envKey] = current
+            target[option.envKey!] = current
         }
         target = current
     }
