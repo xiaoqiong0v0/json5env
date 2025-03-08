@@ -1,0 +1,23 @@
+{
+  "name": "json5env",
+  "version": "1.0.0",
+  "description": "config env using json5",
+  "keywords": [],
+  "license": "ISC",
+  "author": "king-afu@hotmail.com",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "files": [
+    "dist/*",
+    "dist/@types/*.ts"
+  ],
+  "types": "dist/@types/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.9",
+    "json5": "^2.2.3"
+  }
+}
