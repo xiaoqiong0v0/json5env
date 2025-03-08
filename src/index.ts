@@ -44,6 +44,7 @@ function load(option: JsonEnvConfig) {
     // 最后加载本地文件
     fs.existsSync(localFilePath) && fromJson(localFilePath, target)
     return {
+        Env: target,
         getEnv(key: string, defaultValue: any = undefined) {
             return target[key] || defaultValue
         },
