@@ -46,7 +46,8 @@ function typeDefault(value: any): string {
 function buildDefConst(map: { [key: string]: any }, defFileName: string = 'def.d.ts', defValName: string = 'DEF') {
     const file = absoluteFilePath(defFileName)
     const lines: string[] = ["// 该文件仅用于声明"]
-    const isDeclare = defFileName.endsWith('.d.ts') || defFileName.endsWith('.ts')
+    const isDeclare = defFileName.endsWith('.d.ts')
+    const isTs = !isDeclare && defFileName.endsWith('.ts')
     const suffix = isDeclare ? ';' : ','
     if (isDeclare) {
         lines.push(`declare const ${defValName}: {`)
@@ -58,7 +59,11 @@ function buildDefConst(map: { [key: string]: any }, defFileName: string = 'def.d
     })
     lines.push('};')
     if (!isDeclare) {
-        lines.push(`module.exports = {${defValName}}`)
+        if (isTs) {
+            lines.push(`export default ${defValName}`)
+        } else {
+            lines.push(`module.exports = {${defValName}}`)
+        }
     }
     fs.writeFileSync(file, lines.join('\n'))
 }
