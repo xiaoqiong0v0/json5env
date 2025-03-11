@@ -8,18 +8,10 @@ import buildDefPlugin from "./buildDefPlugin";
 import autoDef from "./autoDef";
 import envFiles from "./envFiles";
 import EnvConst from "./envConst";
+import {envLoad} from "./envLoad";
 
-function fromJson(file: string, target: { [key: string]: any }) {
-    const content = fs.readFileSync(file, 'utf-8')
-    let json: any = {}
-    try {
-        json = JSON.parse(content)
-    } catch (e) {
-        throw new Error(`${file} is not a valid json file`)
-    }
-    if (typeof json !== 'object' || Array.isArray(json)) {
-        throw new Error(`${file} is not a valid json file`)
-    }
+function obtainEnv(file: string, target: { [key: string]: any }) {
+    let json: any = envLoad(file)
     for (const key in json) {
         target[key] = json[key]
     }
@@ -38,11 +30,11 @@ function load(option: JsonEnvConfig) {
     }
     const [baseFilePath, envFilePath, localFilePath] = envFiles(option)
     // 先加载 base
-    fs.existsSync(baseFilePath) && fromJson(baseFilePath, target)
+    fs.existsSync(baseFilePath) && obtainEnv(baseFilePath, target)
     // 根据环境加载对应文件
-    fs.existsSync(envFilePath) && fromJson(envFilePath, target)
+    fs.existsSync(envFilePath) && obtainEnv(envFilePath, target)
     // 最后加载本地文件
-    fs.existsSync(localFilePath) && fromJson(localFilePath, target)
+    fs.existsSync(localFilePath) && obtainEnv(localFilePath, target)
     return {
         Env: target,
         getEnv(key: string, defaultValue: any = undefined) {

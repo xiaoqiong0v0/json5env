@@ -4,6 +4,7 @@ import fs from "node:fs";
 import {cwd} from "node:process";
 import JSON from "json5";
 import path from "node:path";
+import {envLoad} from "./envLoad";
 
 const root = cwd()
 
@@ -92,7 +93,7 @@ export default function autoDef(
         const map: { [key: string]: any } = {}
         for (const file of filesInner) {
             try {
-                const content = JSON.parse(fs.readFileSync(file, 'utf-8'))
+                const content = envLoad(file)
                 Object.keys(content).forEach(key => {
                     if (content[key] !== undefined) {
                         map[key] = content[key]
