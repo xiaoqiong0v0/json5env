@@ -33,7 +33,23 @@ function toDefValue(type: string, value: any, defaultValue: any) {
 }
 
 function replaceAll(src: string, search: string, replace: string) {
-    return src.replace(new RegExp(search, 'g'), replace)
+    const regex = new RegExp(search)
+    const regexLength = search.length
+    let ret = src
+    let mathIndex = ret.search(regex)
+    while (mathIndex > -1) {
+        // 如果 后面跟着. 需要转换为(()=>search)(). 否则可能不初始化就调用方法以导致出错
+        const endIndex = mathIndex + regexLength
+        const preFix = ret.substring(0, mathIndex)
+        const subFix = ret.substring(endIndex)
+        if (endIndex < ret.length && ret[endIndex] === '.') {
+            ret = `${preFix}{}(function(){return ${replace}})()${subFix}`
+        } else {
+            ret = `${preFix}${replace}${subFix}`
+        }
+        mathIndex = ret.search(regex)
+    }
+    return ret
 }
 
 /**

@@ -10,15 +10,15 @@ import EnvConst from "./envConst";
  */
 export default function buildDefLoader(
     defDefault: { [key: string]: any },
-    {src, prefix, map}: {
-        src: { [_: string]: any },
-        prefix: string,
-        map: { [_: string]: string } | undefined
-    } = {
-        src: EnvConst,
-        prefix: "DEF",
-        map: undefined
-    }
+    {
+        src = EnvConst,
+        prefix = "DEF",
+        map = undefined
+    }: {
+        src?: { [_: string]: any },
+        prefix?: string,
+        map?: { [_: string]: string } | undefined
+    } = {}
 ) {
     return function (source: string): string {
         return buildDefDeal(source, src, defDefault, prefix, map)

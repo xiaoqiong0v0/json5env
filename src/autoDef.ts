@@ -22,48 +22,41 @@ function absoluteFilePaths(file: string[]) {
 function typeDefault(value: any): string {
     switch (typeof value) {
         case "bigint":
-            return '0n'
-        case "boolean":
-            return 'false'
-        case "number":
-            return '0'
+            return `${value}n`
         case "string":
-            return '""'
-        case "symbol":
-            return 'Symbol()'
-        case "undefined":
-            return 'undefined'
+            return `"${value}"`
         case "object":
-            if (Array.isArray(value)) {
-                return '[]'
-            }
-            return '{}'
+            return JSON.stringify(value)
         default:
-            return 'null'
+            return `${value}`
     }
 }
 
-function buildDefConst(map: { [key: string]: any }, defFileName: string = 'def.d.ts', defValName: string = 'DEF') {
+function buildDefConst(
+    map: { [key: string]: any },
+    defFileName: string = 'def.d.ts',
+    defValName: string = 'DEF',
+    isCommonJs: boolean = false
+) {
     const file = absoluteFilePath(defFileName)
     const lines: string[] = ["// 该文件仅用于声明"]
     const isDeclare = defFileName.endsWith('.d.ts')
-    const isTs = !isDeclare && defFileName.endsWith('.ts')
     const suffix = isDeclare ? ';' : ','
     if (isDeclare) {
         lines.push(`declare const ${defValName}: {`)
     } else {
-        lines.push(`const ${defValName} = {`)
+        if (isCommonJs) {
+            lines.push(`const ${defValName} = {`)
+        } else {
+            lines.push(`export const ${defValName} = {`)
+        }
     }
     Object.keys(map).forEach(key => {
         lines.push(`    ${key}: ${typeDefault(map[key])}${suffix}`)
     })
     lines.push('};')
-    if (!isDeclare) {
-        if (isTs) {
-            lines.push(`export default ${defValName}`)
-        } else {
-            lines.push(`module.exports = {${defValName}}`)
-        }
+    if (!isDeclare && isCommonJs) {
+        lines.push(`module.exports = {${defValName}}`)
     }
     fs.writeFileSync(file, lines.join('\n'))
 }
@@ -75,25 +68,28 @@ function buildDefConst(map: { [key: string]: any }, defFileName: string = 'def.d
  * @param defValName 生成变量名 默认 DEF
  * @param custom 自定义变量 覆盖
  * @param customSetter 自定义变量设置到环境变量
+ * @param isCommonJs 是否生成commonjs模块
  */
 export default function autoDef(
     files: JsonEnvConfig | Array<string>,
-    {defFileName, defValName, custom, customSetter}: {
-        defFileName: string,
-        defValName: string,
-        custom: { [_: string]: any },
-        customSetter: ((key: string, value: any) => void) | undefined
-    } = {
-        defFileName: 'def.d.ts',
-        defValName: 'DEF',
-        custom: {},
-        customSetter: undefined
-    },
+    {
+        defFileName = 'def.d.ts',
+        defValName = 'DEF',
+        custom = {},
+        customSetter = undefined,
+        isCommonJs = false
+    }: {
+        defFileName?: string,
+        defValName?: string,
+        custom?: { [_: string]: any },
+        customSetter?: ((key: string, value: any) => void) | undefined,
+        isCommonJs?: boolean
+    } = {}
 ) {
     const filesInner = Array.isArray(files) ? absoluteFilePaths(files) : envFiles(files)
 
     function loop() {
-        const map: { [key: string]: any } = []
+        const map: { [key: string]: any } = {}
         for (const file of filesInner) {
             try {
                 const content = JSON.parse(fs.readFileSync(file, 'utf-8'))
@@ -118,13 +114,14 @@ export default function autoDef(
                 map[key] = null
             }
         })
-        buildDefConst(map, defFileName, defValName)
+        buildDefConst(map, defFileName, defValName, isCommonJs)
+        return map
     }
 
     let time: NodeJS.Timeout | undefined = undefined
     return {
         exec() {
-            loop()
+            return loop()
         },
         watch(interval: number = 3000) {
             if (time) {

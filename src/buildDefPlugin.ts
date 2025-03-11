@@ -11,19 +11,19 @@ import EnvConst from "./envConst";
  */
 export default function buildDefPlugin(
     defDefault: { [key: string]: any },
-    {src, prefix, map, filter}: {
-        src: { [_: string]: any },
-        prefix: string,
-        map: { [_: string]: string } | undefined,
-        filter: (id: string) => boolean
-    } = {
-        src: EnvConst,
-        prefix: "DEF",
-        map: undefined,
-        filter: (id) =>
+    {
+        src = EnvConst,
+        prefix = "DEF",
+        map = undefined,
+        filter = (id) =>
             id.includes('node_modules') ||
             !(id.endsWith('.js') || id.endsWith('.ts') || id.endsWith('.vue'))
-    }
+    }: {
+        src?: { [_: string]: any },
+        prefix?: string,
+        map?: { [_: string]: string } | undefined,
+        filter?: (id: string) => boolean
+    } = {}
 ) {
     return {
         name: 'globalDefPlugin',
